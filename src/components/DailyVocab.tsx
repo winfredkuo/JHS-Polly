@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyVocab, Vocab } from '../data/vocabulary';
 import { format } from 'date-fns';
-import { CheckCircle2, Circle, BookOpen } from 'lucide-react';
+import { CheckCircle2, Circle, BookOpen, Volume2 } from 'lucide-react';
 
 interface DailyVocabProps {
   reviewCounts: Record<string, number>;
@@ -17,6 +17,19 @@ export function DailyVocab({ reviewCounts, onReview }: DailyVocabProps) {
   }, [todayStr]);
 
   const allReviewed = dailyWords.every(w => (reviewCounts[w.id] || 0) > 0);
+
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // American English
+    utterance.rate = 0.9; // Slightly slower for clarity
+    
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-full">
@@ -57,6 +70,21 @@ export function DailyVocab({ reviewCounts, onReview }: DailyVocabProps) {
                     <span className={`font-bold text-lg ${isReviewed ? 'text-slate-600 line-through' : 'text-slate-800'}`}>
                       {vocab.word}
                     </span>
+                    {vocab.phonetic && (
+                      <span className="text-sm font-mono text-slate-400">
+                        {vocab.phonetic}
+                      </span>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        speak(vocab.word);
+                      }}
+                      className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-indigo-500 transition-colors"
+                      title="播放美式發音"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       vocab.type === 'hard' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
                     }`}>

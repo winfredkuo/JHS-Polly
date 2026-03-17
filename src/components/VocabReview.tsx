@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getAllVocabMap } from '../data/vocabulary';
-import { Search, CheckCircle2, RefreshCw, Star, AlertCircle } from 'lucide-react';
+import { Search, CheckCircle2, RefreshCw, Star, AlertCircle, Volume2 } from 'lucide-react';
 
 interface VocabReviewProps {
   reviewCounts: Record<string, number>;
@@ -21,6 +21,15 @@ export function VocabReview({ reviewCounts, onReview }: VocabReviewProps) {
     v.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
     v.meaning.includes(searchTerm)
   );
+
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full min-h-[600px]">
@@ -65,7 +74,26 @@ export function VocabReview({ reviewCounts, onReview }: VocabReviewProps) {
               return (
                 <div key={vocab.id} className={`border rounded-xl p-4 transition-all flex flex-col ${isMastered ? 'bg-slate-50 border-slate-200 opacity-80' : 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-sm'}`}>
                   <div className="flex items-start justify-between mb-2">
-                    <span className={`font-bold text-lg ${isMastered ? 'text-slate-600' : 'text-slate-800'}`}>{vocab.word}</span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold text-lg ${isMastered ? 'text-slate-600' : 'text-slate-800'}`}>{vocab.word}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            speak(vocab.word);
+                          }}
+                          className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-indigo-500 transition-colors"
+                          title="播放美式發音"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {vocab.phonetic && (
+                        <span className="text-xs font-mono text-slate-400">
+                          {vocab.phonetic}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex gap-1">
                         <span className={`text-[10px] px-2 py-1 rounded-full font-medium ${
