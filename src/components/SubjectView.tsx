@@ -104,7 +104,15 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                               <CheckCircle2 className="w-5 h-5" />
                             </div>
                             <div>
-                              <div className="font-medium text-slate-800">{unit.title}</div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <div className="font-medium text-slate-800">{unit.title}</div>
+                                {hasReviewed && (
+                                  <span className="text-[10px] sm:text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    {records[records.length - 1].date}
+                                  </span>
+                                )}
+                              </div>
                               {hasReviewed && (
                                 <div className="mt-2 space-y-2">
                                   {records.map((r, i) => (
