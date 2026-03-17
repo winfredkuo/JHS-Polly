@@ -3,15 +3,65 @@ import { Timeline } from './components/Timeline';
 import { SubjectView, UserData, ReviewRecord } from './components/SubjectView';
 import { DailyVocab } from './components/DailyVocab';
 import { VocabReview } from './components/VocabReview';
-import { BookOpen, GraduationCap, CalendarDays, BookMarked, LibraryBig } from 'lucide-react';
+import { BookOpen, GraduationCap, CalendarDays, BookMarked, LibraryBig, LogIn, LogOut, User, AlertCircle } from 'lucide-react';
+import { auth, signInWithGoogle, logout, db } from './firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { doc, onSnapshot, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 
 export default function App() {
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<UserData>({});
   const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'subjects' | 'vocab'>('subjects');
 
+  // Handle Auth State
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!currentUser) {
+        // Clear data if logged out or use local if preferred?
+        // For now, let's keep local data as fallback or initial state
+        setIsLoaded(true);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Sync with Firestore when logged in
+  useEffect(() => {
+    if (!user) return;
+
+    // Sync Subject Progress
+    const unsubSubjects = onSnapshot(collection(db, `users/${user.uid}/subjectProgress`), (snapshot) => {
+      const newData: UserData = {};
+      snapshot.forEach((doc) => {
+        newData[doc.id] = doc.data().records;
+      });
+      setUserData(newData);
+    });
+
+    // Sync Vocab Progress
+    const unsubVocab = onSnapshot(collection(db, `users/${user.uid}/vocabProgress`), (snapshot) => {
+      const newCounts: Record<string, number> = {};
+      snapshot.forEach((doc) => {
+        newCounts[doc.id] = doc.data().count;
+      });
+      setReviewCounts(newCounts);
+    });
+
+    setIsLoaded(true);
+
+    return () => {
+      unsubSubjects();
+      unsubVocab();
+    };
+  }, [user]);
+
+  // Initial Local Storage Load (only if not logged in or as initial state)
+  useEffect(() => {
+    if (user) return; // Skip if logged in (Firestore is source of truth)
+
     const savedData = localStorage.getItem('studyPlanData');
     if (savedData) {
       try {
@@ -26,13 +76,9 @@ export default function App() {
       try {
         const parsed = JSON.parse(savedVocab);
         if (Array.isArray(parsed)) {
-          // Migrate old string[] to Record<string, number>
           const migrated: Record<string, number> = {};
-          parsed.forEach(id => {
-            migrated[id] = 1;
-          });
+          parsed.forEach(id => { migrated[id] = 1; });
           setReviewCounts(migrated);
-          localStorage.setItem('reviewedVocab', JSON.stringify(migrated));
         } else {
           setReviewCounts(parsed);
         }
@@ -42,34 +88,76 @@ export default function App() {
     }
     
     setIsLoaded(true);
-  }, []);
+  }, [user]);
 
-  const handleAddReview = (unitId: string, date: string, note: string) => {
+  const handleAddReview = async (unitId: string, date: string, note: string) => {
     const newRecord: ReviewRecord = {
       id: crypto.randomUUID(),
       date,
       note
     };
 
-    const updatedData = {
-      ...userData,
-      [unitId]: [...(userData[unitId] || []), newRecord]
-    };
+    const updatedRecords = [...(userData[unitId] || []), newRecord];
 
-    setUserData(updatedData);
-    localStorage.setItem('studyPlanData', JSON.stringify(updatedData));
+    if (user) {
+      try {
+        await setDoc(doc(db, `users/${user.uid}/subjectProgress`, unitId), {
+          records: updatedRecords
+        });
+      } catch (e) {
+        console.error('Error saving to Firestore', e);
+      }
+    } else {
+      const updatedData = {
+        ...userData,
+        [unitId]: updatedRecords
+      };
+      setUserData(updatedData);
+      localStorage.setItem('studyPlanData', JSON.stringify(updatedData));
+    }
   };
 
-  const handleReviewVocab = (vocabId: string) => {
-    setReviewCounts(prev => {
-      const currentCount = prev[vocabId] || 0;
+  const handleReviewVocab = async (vocabId: string) => {
+    const currentCount = reviewCounts[vocabId] || 0;
+    const newCount = currentCount + 1;
+
+    if (user) {
+      try {
+        await setDoc(doc(db, `users/${user.uid}/vocabProgress`, vocabId), {
+          count: newCount
+        });
+      } catch (e) {
+        console.error('Error saving vocab to Firestore', e);
+      }
+    } else {
       const updatedCounts = {
-        ...prev,
-        [vocabId]: currentCount + 1
+        ...reviewCounts,
+        [vocabId]: newCount
       };
+      setReviewCounts(updatedCounts);
       localStorage.setItem('reviewedVocab', JSON.stringify(updatedCounts));
-      return updatedCounts;
+    }
+  };
+
+  const handleSyncLocalToCloud = async () => {
+    if (!user) return;
+    
+    const batch = writeBatch(db);
+    
+    // Sync subjects
+    Object.entries(userData).forEach(([unitId, records]) => {
+      const ref = doc(db, `users/${user.uid}/subjectProgress`, unitId);
+      batch.set(ref, { records });
     });
+    
+    // Sync vocab
+    Object.entries(reviewCounts).forEach(([vocabId, count]) => {
+      const ref = doc(db, `users/${user.uid}/vocabProgress`, vocabId);
+      batch.set(ref, { count });
+    });
+    
+    await batch.commit();
+    alert('本地資料已同步至雲端！');
   };
 
   if (!isLoaded) return null;
@@ -91,16 +179,78 @@ export default function App() {
             </div>
             <h1 className="text-xl font-bold text-slate-800 tracking-tight">會考戰士計畫表</h1>
           </div>
-          <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100">
-            <CalendarDays className="w-5 h-5 text-indigo-600" />
-            <span className="text-sm font-medium text-indigo-900">
-              距離 2027 會考還有 <strong className="text-lg text-indigo-700">{diffDays}</strong> 天
-            </span>
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100">
+              <CalendarDays className="w-5 h-5 text-indigo-600" />
+              <span className="text-sm font-medium text-indigo-900">
+                距離 2027 會考還有 <strong className="text-lg text-indigo-700">{diffDays}</strong> 天
+              </span>
+            </div>
+
+            {user ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt={user.displayName || ''} className="w-6 h-6 rounded-full" />
+                  ) : (
+                    <User className="w-5 h-5 text-slate-400" />
+                  )}
+                  <span className="text-sm font-medium text-slate-700 hidden sm:inline">{user.displayName}</span>
+                </div>
+                <button 
+                  onClick={logout}
+                  className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  title="登出"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={signInWithGoogle}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                <LogIn className="w-4 h-4" />
+                登入同步
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Sync Banner */}
+        {!user && Object.keys(userData).length > 0 && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-amber-800">
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm">您目前有本地儲存的進度，登入後可將資料同步至雲端，防止遺失。</p>
+            </div>
+            <button 
+              onClick={signInWithGoogle}
+              className="bg-amber-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors whitespace-nowrap"
+            >
+              立即登入同步
+            </button>
+          </div>
+        )}
+
+        {user && localStorage.getItem('studyPlanData') && (
+          <div className="mb-6 bg-indigo-50 border border-indigo-200 p-4 rounded-xl flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-indigo-800">
+              <BookMarked className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm">偵測到本地有舊資料，是否要將其合併至雲端帳號？</p>
+            </div>
+            <button 
+              onClick={handleSyncLocalToCloud}
+              className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap"
+            >
+              同步本地資料
+            </button>
+          </div>
+        )}
+
         {/* Top Section: Horizontal Timeline */}
         <Timeline />
 

@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "ReviewRecord": {
+      "title": "Review Record",
+      "description": "A single review entry for a subject unit",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date", "description": "Date of review" },
+        "note": { "type": "string", "description": "Note for the review" }
+      },
+      "required": ["date", "note"]
+    },
+    "SubjectProgress": {
+      "title": "Subject Progress",
+      "description": "Review history for a specific subject unit",
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": { "$ref": "ReviewRecord" }
+        }
+      },
+      "required": ["records"]
+    },
+    "VocabProgress": {
+      "title": "Vocabulary Progress",
+      "description": "Progress tracking for a specific vocabulary item",
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "description": "Number of times reviewed" }
+      },
+      "required": ["count"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/subjectProgress/{unitId}": {
+      "schema": "SubjectProgress",
+      "description": "Stores review history for each subject unit per user"
+    },
+    "/users/{userId}/vocabProgress/{vocabId}": {
+      "schema": "VocabProgress",
+      "description": "Stores review count for each vocabulary item per user"
+    }
+  }
+}

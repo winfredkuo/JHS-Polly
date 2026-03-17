@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}/subjectProgress/{unitId}
+    // Fields:
+    //   - records: list of maps { date: string, note: string }
+    //
+    // Collection: /users/{userId}/vocabProgress/{vocabId}
+    // Fields:
+    //   - count: number (integer)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidReviewRecord(record) {
+      return record.keys().hasAll(['date', 'note']) &&
+             record.date is string && record.date.size() > 0 &&
+             record.note is string;
+    }
+
+    function isValidSubjectProgress(data) {
+      return data.keys().hasOnly(['records']) &&
+             data.records is list &&
+             data.records.size() <= 100;
+    }
+
+    function isValidVocabProgress(data) {
+      return data.keys().hasOnly(['count']) &&
+             data.count is int &&
+             data.count >= 0 &&
+             data.count <= 1000;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Allow user to manage their own subcollections
+      match /subjectProgress/{unitId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidSubjectProgress(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /vocabProgress/{vocabId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidVocabProgress(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
