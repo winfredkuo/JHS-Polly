@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { getAllVocabMap } from '../data/vocabulary';
-import { Search, CheckCircle2, RefreshCw, Star, AlertCircle, Volume2 } from 'lucide-react';
+import { Search, CheckCircle2, RefreshCw, Star, AlertCircle, Volume2, Sparkles } from 'lucide-react';
 
 interface VocabReviewProps {
   reviewCounts: Record<string, number>;
   onReview: (id: string) => void;
+  onShowAI: (word: string) => void;
 }
 
-export function VocabReview({ reviewCounts, onReview }: VocabReviewProps) {
+export function VocabReview({ reviewCounts, onReview, onShowAI }: VocabReviewProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const allVocab = getAllVocabMap();
   
@@ -76,6 +77,13 @@ export function VocabReview({ reviewCounts, onReview }: VocabReviewProps) {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onShowAI(vocab.word)}
+                          className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm group"
+                          title="AI 深度解析"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 group-hover:animate-pulse" />
+                        </button>
                         <span className={`font-bold text-lg ${isMastered ? 'text-slate-600' : 'text-slate-800'}`}>{vocab.word}</span>
                         <button
                           onClick={(e) => {

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyVocab, Vocab } from '../data/vocabulary';
 import { format } from 'date-fns';
-import { CheckCircle2, Circle, BookOpen, Volume2 } from 'lucide-react';
+import { CheckCircle2, Circle, BookOpen, Volume2, Sparkles } from 'lucide-react';
 
 interface DailyVocabProps {
   reviewCounts: Record<string, number>;
   onReview: (id: string) => void;
+  onShowAI: (word: string) => void;
 }
 
-export function DailyVocab({ reviewCounts, onReview }: DailyVocabProps) {
+export function DailyVocab({ reviewCounts, onReview, onShowAI }: DailyVocabProps) {
   const [dailyWords, setDailyWords] = useState<Vocab[]>([]);
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
@@ -65,6 +66,13 @@ export function DailyVocab({ reviewCounts, onReview }: DailyVocabProps) {
                 <div className="flex-shrink-0 w-6 text-center text-sm font-bold text-slate-400">
                   {index + 1}
                 </div>
+                <button
+                  onClick={() => onShowAI(vocab.word)}
+                  className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm group"
+                  title="AI 深度解析"
+                >
+                  <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
+                </button>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`font-bold text-lg ${isReviewed ? 'text-slate-600 line-through' : 'text-slate-800'}`}>

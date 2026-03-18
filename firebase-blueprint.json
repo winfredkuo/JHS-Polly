@@ -30,6 +30,26 @@
         "count": { "type": "integer", "description": "Number of times reviewed" }
       },
       "required": ["count"]
+    },
+    "VocabCache": {
+      "title": "Vocabulary AI Cache",
+      "description": "Cached AI explanation for a vocabulary item",
+      "type": "object",
+      "properties": {
+        "word": { "type": "string", "description": "The vocabulary word" },
+        "explanation": { "type": "object", "description": "The AI generated explanation JSON" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the cache was created" }
+      },
+      "required": ["word", "explanation", "createdAt"]
+    },
+    "UserUsage": {
+      "title": "User AI Usage",
+      "description": "Daily AI usage count for a user",
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "description": "Number of AI calls today" }
+      },
+      "required": ["count"]
     }
   },
   "firestore": {
@@ -40,6 +60,14 @@
     "/users/{userId}/vocabProgress/{vocabId}": {
       "schema": "VocabProgress",
       "description": "Stores review count for each vocabulary item per user"
+    },
+    "/vocab_cache/{word}": {
+      "schema": "VocabCache",
+      "description": "Global cache for AI vocabulary explanations"
+    },
+    "/users/{userId}/usage/{date}": {
+      "schema": "UserUsage",
+      "description": "Daily AI usage tracking for each user"
     }
   }
 }

@@ -13,6 +13,8 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 
 import { UpcomingMilestones } from './components/UpcomingMilestones';
+import { AIExplanationModal } from './components/AIExplanationModal';
+import { AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -22,19 +24,27 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'subjects' | 'vocab'>('subjects');
   const [syncing, setSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
+  const [aiWord, setAiWord] = useState<string | null>(null);
 
   // Handle Auth State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (!currentUser) {
-        // Clear data if logged out or use local if preferred?
-        // For now, let's keep local data as fallback or initial state
         setIsLoaded(true);
       }
     });
     return () => unsubscribe();
   }, []);
+
+  const handleShowAI = (word: string) => {
+    if (!user) {
+      // If not logged in, trigger sign in
+      signInWithGoogle();
+      return;
+    }
+    setAiWord(word);
+  };
 
   // Sync with Firestore when logged in
   useEffect(() => {
@@ -296,6 +306,7 @@ export default function App() {
             <DailyVocab 
               reviewCounts={reviewCounts} 
               onReview={handleReviewVocab} 
+              onShowAI={handleShowAI}
             />
           </div>
 
@@ -346,12 +357,21 @@ export default function App() {
               {activeTab === 'subjects' ? (
                 <SubjectView userData={userData} onAddReview={handleAddReview} />
               ) : (
-                <VocabReview reviewCounts={reviewCounts} onReview={handleReviewVocab} />
+                <VocabReview reviewCounts={reviewCounts} onReview={handleReviewVocab} onShowAI={handleShowAI} />
               )}
             </div>
           </div>
         </div>
       </main>
+
+      <AnimatePresence>
+        {aiWord && (
+          <AIExplanationModal 
+            word={aiWord} 
+            onClose={() => setAiWord(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

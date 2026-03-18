@@ -46,12 +46,32 @@ service cloud.firestore {
              data.count <= 1000;
     }
 
+    function isValidVocabCache(data) {
+      return data.keys().hasOnly(['word', 'explanation', 'createdAt']) &&
+             data.word is string &&
+             data.explanation is map &&
+             data.createdAt is string;
+    }
+
+    function isValidUserUsage(data) {
+      return data.keys().hasOnly(['count']) &&
+             data.count is int &&
+             data.count >= 0 &&
+             data.count <= 31; // Allow up to 31 to handle the "limit reached" state if needed
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
 
+    match /vocab_cache/{word} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() && isValidVocabCache(request.resource.data);
+    }
+
     match /users/{userId} {
-      // Allow user to manage their own subcollections
+      allow read, write: if isOwner(userId);
+      
       match /subjectProgress/{unitId} {
         allow read: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidSubjectProgress(request.resource.data);
@@ -62,6 +82,11 @@ service cloud.firestore {
         allow read: if isOwner(userId);
         allow create, update: if isOwner(userId) && isValidVocabProgress(request.resource.data);
         allow delete: if isOwner(userId);
+      }
+
+      match /usage/{date} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidUserUsage(request.resource.data);
       }
     }
 
