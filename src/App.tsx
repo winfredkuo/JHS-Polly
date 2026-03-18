@@ -1,3 +1,7 @@
+/**
+ * 會考戰士計畫表 - 最完整第一版 (Stable Baseline v1.0)
+ * 此版本包含完整的學科進度追蹤、每日單字、複習系統以及 Firebase 同步功能。
+ */
 import React, { useState, useEffect } from 'react';
 import { Timeline } from './components/Timeline';
 import { SubjectView, UserData, ReviewRecord } from './components/SubjectView';
