@@ -2,7 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { db, auth } from "../firebase";
 import { doc, getDoc, setDoc, increment } from "firebase/firestore";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+// Get API Key from AI Studio environment or Vite environment variables
+const API_KEY = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export interface AIExplanation {
   word: string;
