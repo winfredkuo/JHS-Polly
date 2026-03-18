@@ -50,7 +50,7 @@ export function UpcomingMilestones() {
             <div className={`w-2 h-2 rounded-full ${
               m.highlight ? 'bg-rose-500 animate-pulse' : m.type === 'exam' ? 'bg-amber-500' : 'bg-emerald-500'
             }`} />
-            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">{m.date}</span>
+            <span className="text-xs font-black uppercase tracking-wider opacity-90">{m.date}</span>
             <span className="text-xs font-bold">{m.title}</span>
             {i < upcoming.length - 1 && <ChevronRight className="w-3 h-3 opacity-30" />}
           </div>

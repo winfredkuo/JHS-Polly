@@ -98,9 +98,9 @@ export function Timeline({ userData }: TimelineProps) {
             return (
               <div key={i} className="flex-shrink-0 w-40 snap-start flex flex-col items-center group">
                 {/* Date (Top) */}
-                <div className={`text-[10px] font-bold mb-3 transition-colors uppercase tracking-wider ${
-                  isToday ? 'text-blue-600 bg-blue-50 px-3 py-1 rounded-full shadow-sm border border-blue-100' :
-                  'text-emerald-600'
+                <div className={`text-xs font-black mb-3 transition-colors uppercase tracking-wider ${
+                  isToday ? 'text-blue-700 bg-blue-50 px-3 py-1 rounded-full shadow-sm border border-blue-200' :
+                  'text-emerald-700'
                 }`}>
                   {m.date}
                 </div>
