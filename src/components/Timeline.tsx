@@ -4,34 +4,41 @@ import { format } from 'date-fns';
 interface Milestone {
   date: string;
   title: string;
-  type: 'school' | 'exam' | 'today';
-  highlight?: boolean;
+  type: 'today' | 'review';
+  note?: string;
 }
 
-const baseMilestones: Milestone[] = [
-  { date: '2026-08-31', title: '九年級開學', type: 'school' },
-  { date: '2026-09-05', title: '北北基模考(1~2冊)', type: 'exam' },
-  { date: '2026-10-10', title: '九上第一次段考', type: 'exam' },
-  { date: '2026-11-15', title: '校內模考(1~3冊)', type: 'exam' },
-  { date: '2026-12-05', title: '九上第二次段考', type: 'exam' },
-  { date: '2026-12-25', title: '北北基模考(1~4冊)', type: 'exam' },
-  { date: '2027-01-15', title: '九上第三次段考', type: 'exam' },
-  { date: '2027-02-15', title: '九下開學', type: 'school' },
-  { date: '2027-02-25', title: '北北基模考(1~5冊)', type: 'exam' },
-  { date: '2027-04-15', title: '九下段考(全面自習)', type: 'exam' },
-  { date: '2027-04-25', title: '北北基模考(1~6冊)', type: 'exam' },
-  { date: '2027-05-05', title: '全國模考(1~6冊)', type: 'exam' },
-  { date: '2027-05-15', title: '會考 (Day 1)', type: 'exam', highlight: true },
-  { date: '2027-05-16', title: '會考 (Day 2)', type: 'exam', highlight: true },
-];
+import { UserData } from './SubjectView';
+import { curriculum } from '../data/curriculum';
+import { MessageSquare, History, Calendar } from 'lucide-react';
 
-export function Timeline() {
+interface TimelineProps {
+  userData: UserData;
+}
+
+export function Timeline({ userData }: TimelineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const todayStr = format(new Date(), 'yyyy-MM-dd');
   
-  // Combine base milestones with today's date
-  const allMilestones = [...baseMilestones];
-  if (!allMilestones.find(m => m.date === todayStr && m.title === '今天')) {
+  // Combine today's date and user reviews
+  const allMilestones: Milestone[] = [];
+  
+  // Add user reviews as milestones
+  Object.entries(userData).forEach(([unitId, records]) => {
+    const unit = curriculum.flatMap(s => s.books).flatMap(b => b.units).find(u => u.id === unitId);
+    if (unit) {
+      records.forEach(record => {
+        allMilestones.push({
+          date: record.date,
+          title: unit.title,
+          type: 'review',
+          note: record.note
+        });
+      });
+    }
+  });
+
+  if (!allMilestones.find(m => m.date === todayStr && m.type === 'today')) {
     allMilestones.push({ date: todayStr, title: '今天', type: 'today' });
   }
   
@@ -44,7 +51,7 @@ export function Timeline() {
       const todayIndex = allMilestones.findIndex(m => m.type === 'today');
       if (todayIndex !== -1) {
         const container = scrollRef.current;
-        const itemWidth = 144; // w-36 = 9rem = 144px
+        const itemWidth = 160; 
         const scrollPosition = (todayIndex * itemWidth) - (container.clientWidth / 2) + (itemWidth / 2);
         
         setTimeout(() => {
@@ -54,26 +61,46 @@ export function Timeline() {
     }
   }, [allMilestones]);
 
+  if (allMilestones.length <= 1 && allMilestones[0]?.type === 'today') {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 mb-8 text-center">
+        <div className="bg-indigo-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+          <History className="w-6 h-6 text-indigo-600" />
+        </div>
+        <h2 className="text-lg font-semibold text-slate-800 mb-2">複習歷史時間軸</h2>
+        <p className="text-slate-500 text-sm">目前還沒有複習紀錄，開始複習後會在這裡顯示您的學習足跡！</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
-      <h2 className="text-lg font-semibold text-slate-800 mb-6">重要日程與模擬考時間軸</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <History className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-semibold text-slate-800">複習歷史時間軸</h2>
+        </div>
+        <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
+          <Calendar className="w-3 h-3" />
+          依日期排序
+        </div>
+      </div>
       
       <div className="relative">
         {/* Horizontal Line */}
-        <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-100 -translate-y-1/2 rounded-full" />
+        <div className="absolute top-[44px] left-0 right-0 h-1 bg-slate-100 rounded-full" />
         
-        <div ref={scrollRef} className="flex overflow-x-auto pb-4 pt-2 snap-x hide-scrollbar relative z-10 scroll-smooth">
+        <div ref={scrollRef} className="flex overflow-x-auto pb-6 pt-2 snap-x hide-scrollbar relative z-10 scroll-smooth">
           {allMilestones.map((m, i) => {
-            const isPast = new Date(m.date) < new Date(todayStr);
             const isToday = m.type === 'today';
+            const isReview = m.type === 'review';
             
             return (
-              <div key={i} className={`flex-shrink-0 w-36 snap-start flex flex-col items-center group ${isPast && !isToday ? 'opacity-40' : ''}`}>
+              <div key={i} className="flex-shrink-0 w-40 snap-start flex flex-col items-center group">
                 {/* Date (Top) */}
-                <div className={`text-xs font-semibold mb-3 transition-colors ${
+                <div className={`text-[10px] font-bold mb-3 transition-colors uppercase tracking-wider ${
                   isToday ? 'text-blue-600 bg-blue-50 px-3 py-1 rounded-full shadow-sm border border-blue-100' :
-                  m.highlight ? 'text-red-600' : 
-                  'text-slate-500 group-hover:text-indigo-600'
+                  'text-emerald-600'
                 }`}>
                   {m.date}
                 </div>
@@ -81,17 +108,22 @@ export function Timeline() {
                 {/* Node */}
                 <div className={`w-4 h-4 rounded-full border-2 border-white shadow-sm z-10 transition-transform group-hover:scale-125 ${
                   isToday ? 'bg-blue-500 w-6 h-6 animate-pulse ring-4 ring-blue-100' :
-                  m.highlight ? 'bg-red-500 w-5 h-5' : 
-                  m.type === 'exam' ? 'bg-indigo-500' : 'bg-emerald-500'
+                  'bg-emerald-500 w-3 h-3'
                 }`} />
                 
                 {/* Title (Bottom) */}
-                <div className={`text-sm mt-3 text-center px-2 font-medium transition-colors ${
-                  isToday ? 'text-blue-700 font-bold' :
-                  m.highlight ? 'text-red-700 font-bold' : 
-                  'text-slate-700 group-hover:text-indigo-700'
-                }`}>
-                  {m.title}
+                <div className="mt-3 text-center px-2 flex flex-col items-center gap-1">
+                  <div className={`text-xs font-bold transition-colors line-clamp-2 ${
+                    isToday ? 'text-blue-700' : 'text-emerald-700'
+                  }`}>
+                    {m.title}
+                  </div>
+                  {isReview && m.note && (
+                    <div className="text-[10px] text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 max-w-full">
+                      <MessageSquare className="w-2.5 h-2.5 shrink-0 text-indigo-400" />
+                      <span className="truncate">{m.note}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );

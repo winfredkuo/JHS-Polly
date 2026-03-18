@@ -107,27 +107,38 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                               <div className="flex flex-wrap items-center gap-2">
                                 <div className="font-medium text-slate-800">{unit.title}</div>
                                 {hasReviewed && (
-                                  <span className="text-[10px] sm:text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {records[records.length - 1].date}
-                                  </span>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="text-[10px] sm:text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                                      <Calendar className="w-3 h-3" />
+                                      {records[records.length - 1].date}
+                                    </span>
+                                    {records[records.length - 1].note && (
+                                      <span className="text-[10px] sm:text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 flex items-center gap-1">
+                                        <MessageSquare className="w-3 h-3" />
+                                        {records[records.length - 1].note}
+                                      </span>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                               {hasReviewed && (
-                                <div className="mt-2 space-y-2">
+                                <div className="mt-3 space-y-2">
                                   {records.map((r, i) => (
-                                    <div key={r.id} className="text-sm bg-slate-100 rounded-lg p-2 flex items-start gap-2">
-                                      <div className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap">
+                                    <div key={r.id} className="text-sm bg-slate-50 border border-slate-100 rounded-lg p-3 flex items-start gap-3">
+                                      <div className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap mt-0.5">
                                         第 {i + 1} 次
                                       </div>
-                                      <div>
-                                        <div className="text-slate-600 font-medium flex items-center gap-1">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-slate-500 text-xs flex items-center gap-1 mb-1">
                                           <Calendar className="w-3 h-3" /> {r.date}
                                         </div>
-                                        {r.note && (
-                                          <div className="text-slate-500 mt-1 flex items-start gap-1">
-                                            <MessageSquare className="w-3 h-3 mt-0.5" /> {r.note}
+                                        {r.note ? (
+                                          <div className="text-slate-700 font-medium flex items-start gap-2 break-words">
+                                            <MessageSquare className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                                            <span>{r.note}</span>
                                           </div>
+                                        ) : (
+                                          <div className="text-slate-400 italic text-xs">無備註</div>
                                         )}
                                       </div>
                                     </div>

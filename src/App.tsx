@@ -3,10 +3,12 @@ import { Timeline } from './components/Timeline';
 import { SubjectView, UserData, ReviewRecord } from './components/SubjectView';
 import { DailyVocab } from './components/DailyVocab';
 import { VocabReview } from './components/VocabReview';
-import { BookOpen, GraduationCap, CalendarDays, BookMarked, LibraryBig, LogIn, LogOut, User, AlertCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, CalendarDays, BookMarked, LibraryBig, LogIn, LogOut, User, AlertCircle, Bell } from 'lucide-react';
 import { auth, signInWithGoogle, logout, db } from './firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
+
+import { UpcomingMilestones } from './components/UpcomingMilestones';
 
 export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -14,6 +16,8 @@ export default function App() {
   const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'subjects' | 'vocab'>('subjects');
+  const [syncing, setSyncing] = useState(false);
+  const [syncSuccess, setSyncSuccess] = useState(false);
 
   // Handle Auth State
   useEffect(() => {
@@ -140,24 +144,45 @@ export default function App() {
   };
 
   const handleSyncLocalToCloud = async () => {
-    if (!user) return;
+    if (!user || syncing) return;
     
-    const batch = writeBatch(db);
-    
-    // Sync subjects
-    Object.entries(userData).forEach(([unitId, records]) => {
-      const ref = doc(db, `users/${user.uid}/subjectProgress`, unitId);
-      batch.set(ref, { records });
-    });
-    
-    // Sync vocab
-    Object.entries(reviewCounts).forEach(([vocabId, count]) => {
-      const ref = doc(db, `users/${user.uid}/vocabProgress`, vocabId);
-      batch.set(ref, { count });
-    });
-    
-    await batch.commit();
-    alert('本地資料已同步至雲端！');
+    setSyncing(true);
+    try {
+      const batch = writeBatch(db);
+      
+      // Get data from localStorage
+      const localDataRaw = localStorage.getItem('studyPlanData');
+      const localVocabRaw = localStorage.getItem('reviewedVocab');
+      
+      if (localDataRaw) {
+        const localData: UserData = JSON.parse(localDataRaw);
+        Object.entries(localData).forEach(([unitId, records]) => {
+          const ref = doc(db, `users/${user.uid}/subjectProgress`, unitId);
+          batch.set(ref, { records }, { merge: true });
+        });
+      }
+      
+      if (localVocabRaw) {
+        const localVocab: Record<string, number> = JSON.parse(localVocabRaw);
+        Object.entries(localVocab).forEach(([vocabId, count]) => {
+          const ref = doc(db, `users/${user.uid}/vocabProgress`, vocabId);
+          batch.set(ref, { count }, { merge: true });
+        });
+      }
+      
+      await batch.commit();
+      
+      // Clear local storage
+      localStorage.removeItem('studyPlanData');
+      localStorage.removeItem('reviewedVocab');
+      
+      setSyncSuccess(true);
+      setTimeout(() => setSyncSuccess(false), 3000);
+    } catch (e) {
+      console.error('Sync failed', e);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   if (!isLoaded) return null;
@@ -172,22 +197,19 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 sm:gap-8">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="bg-indigo-600 p-2 rounded-lg">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">會考戰士計畫表</h1>
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">會考戰士計畫表</h1>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100">
-              <CalendarDays className="w-5 h-5 text-indigo-600" />
-              <span className="text-sm font-medium text-indigo-900">
-                距離 2027 會考還有 <strong className="text-lg text-indigo-700">{diffDays}</strong> 天
-              </span>
-            </div>
+          <div className="flex-1 min-w-0">
+            <UpcomingMilestones />
+          </div>
 
+          <div className="flex items-center gap-3 flex-shrink-0">
             {user ? (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
@@ -236,7 +258,7 @@ export default function App() {
           </div>
         )}
 
-        {user && localStorage.getItem('studyPlanData') && (
+        {user && (localStorage.getItem('studyPlanData') || localStorage.getItem('reviewedVocab')) && !syncSuccess && (
           <div className="mb-6 bg-indigo-50 border border-indigo-200 p-4 rounded-xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-indigo-800">
               <BookMarked className="w-5 h-5 flex-shrink-0" />
@@ -244,15 +266,25 @@ export default function App() {
             </div>
             <button 
               onClick={handleSyncLocalToCloud}
-              className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap"
+              disabled={syncing}
+              className={`bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap flex items-center gap-2 ${syncing ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              同步本地資料
+              {syncing ? '同步中...' : '同步本地資料'}
             </button>
           </div>
         )}
 
+        {syncSuccess && (
+          <div className="mb-6 bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center gap-3 text-emerald-800 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="bg-emerald-100 p-1 rounded-full">
+              <LogIn className="w-4 h-4 text-emerald-600" />
+            </div>
+            <p className="text-sm font-medium">本地資料已成功同步至雲端！</p>
+          </div>
+        )}
+
         {/* Top Section: Horizontal Timeline */}
-        <Timeline />
+        <Timeline userData={userData} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Daily Vocab */}
@@ -265,30 +297,44 @@ export default function App() {
 
           {/* Right Column: Main Content Area */}
           <div className="lg:col-span-8 flex flex-col">
-            {/* Tabs */}
-            <div className="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm self-start">
-              <button
-                onClick={() => setActiveTab('subjects')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === 'subjects' 
-                    ? 'bg-indigo-600 text-white shadow-sm' 
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                <BookMarked className="w-4 h-4" />
-                各科複習進度
-              </button>
-              <button
-                onClick={() => setActiveTab('vocab')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === 'vocab' 
-                    ? 'bg-indigo-600 text-white shadow-sm' 
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`}
-              >
-                <LibraryBig className="w-4 h-4" />
-                單字片語庫
-              </button>
+            {/* Tabs & Countdown */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm self-start">
+                <button
+                  onClick={() => setActiveTab('subjects')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeTab === 'subjects' 
+                      ? 'bg-indigo-600 text-white shadow-sm' 
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <BookMarked className="w-4 h-4" />
+                  各科複習進度
+                </button>
+                <button
+                  onClick={() => setActiveTab('vocab')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    activeTab === 'vocab' 
+                      ? 'bg-indigo-600 text-white shadow-sm' 
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <LibraryBig className="w-4 h-4" />
+                  單字片語庫
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 bg-rose-50 px-4 py-2.5 rounded-2xl border-2 border-rose-200 shadow-sm animate-pulse">
+                <div className="bg-rose-500 p-1.5 rounded-lg shadow-sm">
+                  <CalendarDays className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest leading-none mb-1">距離會考還有</span>
+                  <span className="text-rose-700 font-black text-xl leading-none flex items-baseline gap-1">
+                    {diffDays} <span className="text-xs font-bold">DAYS</span>
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Tab Content */}
