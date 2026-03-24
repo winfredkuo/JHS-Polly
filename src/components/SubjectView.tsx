@@ -121,30 +121,6 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                                   </div>
                                 )}
                               </div>
-                              {hasReviewed && (
-                                <div className="mt-3 space-y-2">
-                                  {records.map((r, i) => (
-                                    <div key={r.id} className="text-sm bg-slate-50 border border-slate-100 rounded-lg p-3 flex items-start gap-3">
-                                      <div className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap mt-0.5">
-                                        第 {i + 1} 次
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="text-slate-500 text-xs flex items-center gap-1 mb-1">
-                                          <Calendar className="w-3 h-3" /> {r.date}
-                                        </div>
-                                        {r.note ? (
-                                          <div className="text-slate-700 font-medium flex items-start gap-2 break-words">
-                                            <MessageSquare className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-                                            <span>{r.note}</span>
-                                          </div>
-                                        ) : (
-                                          <div className="text-slate-400 italic text-xs">無備註</div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
                             </div>
                           </div>
                           
