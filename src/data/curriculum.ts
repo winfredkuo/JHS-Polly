@@ -20,7 +20,7 @@ export const curriculum: Subject[] = [
     id: 'chinese',
     title: '國文',
     books: [
-      { id: 'c1', title: '第一冊 (七上)', units: [
+      { id: 'c1', title: '第一冊 七上', units: [
         { id: 'c1-u1', title: '第一課 夏夜' },
         { id: 'c1-u2', title: '第二課 無心的錯誤' },
         { id: 'c1-u3', title: '第三課 母親的教誨' },
@@ -37,7 +37,7 @@ export const curriculum: Subject[] = [
         { id: 'c1-u14', title: '自學選文二 貪睡的長頸鹿' },
         { id: 'c1-u15', title: '自學選文三 行動的水滴才能匯流大河' }
       ] },
-      { id: 'c2', title: '第二冊 (七下)', units: [
+      { id: 'c2', title: '第二冊 七下', units: [
         { id: 'c2-u1', title: '第一課 聲音鐘' },
         { id: 'c2-u2', title: '第二課 孩子的鐘塔' },
         { id: 'c2-u3', title: '第三課 紙船印象' },
@@ -54,7 +54,7 @@ export const curriculum: Subject[] = [
         { id: 'c2-u14', title: '自學選文二 放天燈是傳統,還是為山林製造更多垃圾?' },
         { id: 'c2-u15', title: '自學選文三 越南安妮:新移民的歌仔戲人生' }
       ] },
-      { id: 'c3', title: '第三冊 (八上)', units: [
+      { id: 'c3', title: '第三冊 八上', units: [
         { id: 'c3-u1', title: '第一課 田園之秋選' },
         { id: 'c3-u2', title: '第二課 古詩選' },
         { id: 'c3-u3', title: '第三課 下雨天,真好' },
@@ -71,16 +71,16 @@ export const curriculum: Subject[] = [
         { id: 'c3-u14', title: '自學選文二 一團人生' },
         { id: 'c3-u15', title: '自學選文三 安藤忠雄:孤獨,也要讓夢想開花' }
       ] },
-      { id: 'c4', title: '第四冊 (八下)', units: Array.from({ length: 10 }, (_, i) => ({ id: `c4-u${i+1}`, title: `第${i+1}課` })) },
-      { id: 'c5', title: '第五冊 (九上)', units: Array.from({ length: 10 }, (_, i) => ({ id: `c5-u${i+1}`, title: `第${i+1}課` })) },
-      { id: 'c6', title: '第六冊 (九下)', units: Array.from({ length: 10 }, (_, i) => ({ id: `c6-u${i+1}`, title: `第${i+1}課` })) },
+      { id: 'c4', title: '第四冊 八下', units: Array.from({ length: 10 }, (_, i) => ({ id: `c4-u${i+1}`, title: `第${i+1}課` })) },
+      { id: 'c5', title: '第五冊 九上', units: Array.from({ length: 10 }, (_, i) => ({ id: `c5-u${i+1}`, title: `第${i+1}課` })) },
+      { id: 'c6', title: '第六冊 九下', units: Array.from({ length: 10 }, (_, i) => ({ id: `c6-u${i+1}`, title: `第${i+1}課` })) },
     ]
   },
   {
     id: 'english',
     title: '英文',
     books: [
-      { id: 'e1', title: '第一冊 (七上)', units: [
+      { id: 'e1', title: '第一冊 七上', units: [
         { id: 'e1-u1', title: "Lesson 1 What's This?" },
         { id: 'e1-u2', title: 'Lesson 2 Where Is Annie From?' },
         { id: 'e1-u3', title: 'Lesson 3 Please Bring Your Favorite Dish' },
@@ -91,7 +91,7 @@ export const curriculum: Subject[] = [
         { id: 'e1-r2', title: 'Review 2' },
         { id: 'e1-r3', title: 'Review 3' }
       ] },
-      { id: 'e2', title: '第二冊 (七下)', units: [
+      { id: 'e2', title: '第二冊 七下', units: [
         { id: 'e2-u1', title: 'Lesson 1 What Do We Have for Lunch Today?' },
         { id: 'e2-u2', title: 'Lesson 2 The Hotel Opens Only in Winter' },
         { id: 'e2-u3', title: 'Lesson 3 How Do You Celebrate the New Year?' },
@@ -102,7 +102,7 @@ export const curriculum: Subject[] = [
         { id: 'e2-r2', title: 'Review 2' },
         { id: 'e2-r3', title: 'Review 3' }
       ] },
-      { id: 'e3', title: '第三冊 (八上)', units: [
+      { id: 'e3', title: '第三冊 八上', units: [
         { id: 'e3-u1', title: 'Lesson 1 We Visited Our Relatives Yesterday' },
         { id: 'e3-u2', title: 'Lesson 2 I Read a Special Book Last Week' },
         { id: 'e3-u3', title: 'Lesson 3 All Animals Were Going to the Party' },
@@ -113,16 +113,16 @@ export const curriculum: Subject[] = [
         { id: 'e3-r2', title: 'Review 2' },
         { id: 'e3-r3', title: 'Review 3' }
       ] },
-      { id: 'e4', title: '第四冊 (八下)', units: Array.from({ length: 6 }, (_, i) => ({ id: `e4-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e4-r1', title: 'Review 1' }, { id: 'e4-r2', title: 'Review 2' }, { id: 'e4-r3', title: 'Review 3' }]) },
-      { id: 'e5', title: '第五冊 (九上)', units: Array.from({ length: 6 }, (_, i) => ({ id: `e5-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e5-r1', title: 'Review 1' }, { id: 'e5-r2', title: 'Review 2' }, { id: 'e5-r3', title: 'Review 3' }]) },
-      { id: 'e6', title: '第六冊 (九下)', units: Array.from({ length: 6 }, (_, i) => ({ id: `e6-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e6-r1', title: 'Review 1' }, { id: 'e6-r2', title: 'Review 2' }, { id: 'e6-r3', title: 'Review 3' }]) },
+      { id: 'e4', title: '第四冊 八下', units: Array.from({ length: 6 }, (_, i) => ({ id: `e4-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e4-r1', title: 'Review 1' }, { id: 'e4-r2', title: 'Review 2' }, { id: 'e4-r3', title: 'Review 3' }]) },
+      { id: 'e5', title: '第五冊 九上', units: Array.from({ length: 6 }, (_, i) => ({ id: `e5-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e5-r1', title: 'Review 1' }, { id: 'e5-r2', title: 'Review 2' }, { id: 'e5-r3', title: 'Review 3' }]) },
+      { id: 'e6', title: '第六冊 九下', units: Array.from({ length: 6 }, (_, i) => ({ id: `e6-u${i+1}`, title: `Unit ${i+1}` })).concat([{ id: 'e6-r1', title: 'Review 1' }, { id: 'e6-r2', title: 'Review 2' }, { id: 'e6-r3', title: 'Review 3' }]) },
     ]
   },
   {
     id: 'math',
     title: '數學',
     books: [
-      { id: 'm1', title: '第一冊 (七上)', units: [
+      { id: 'm1', title: '第一冊 七上', units: [
         { id: 'm1-u1', title: '1-1 正數與負數' },
         { id: 'm1-u2', title: '1-2 正負數的加減' },
         { id: 'm1-u3', title: '1-3 正負數的乘除' },
@@ -135,7 +135,7 @@ export const curriculum: Subject[] = [
         { id: 'm1-u10', title: '3-2 解一元一次方程式' },
         { id: 'm1-u11', title: '3-3 應用問題' }
       ]},
-      { id: 'm2', title: '第二冊 (七下)', units: [
+      { id: 'm2', title: '第二冊 七下', units: [
         { id: 'm2-u1', title: '1-1 二元一次方程式' },
         { id: 'm2-u2', title: '1-2 解二元一次聯立方程式' },
         { id: 'm2-u3', title: '1-3 應用問題' },
@@ -148,24 +148,22 @@ export const curriculum: Subject[] = [
         { id: 'm2-u10', title: '5 統計圖表與統計數據' },
         { id: 'm2-u11', title: '6 線對稱與三視圖' }
       ]},
-      { id: 'm3', title: '第三冊 (八上)', units: [
+      { id: 'm3', title: '第三冊 八上', units: [
         { id: 'm3-u1', title: '1. 乘法公式與多項式' },
         { id: 'm3-u2', title: '2. 平方根與畢氏定理' },
         { id: 'm3-u3', title: '3. 因式分解' },
         { id: 'm3-u4', title: '4. 一元二次方程式' }
       ]},
-      { id: 'm4', title: '第四冊 (八下)', units: [
-        { id: 'm4-u1', title: '1. 數列與等差級數' },
-        { id: 'm4-u2', title: '2. 幾何圖形與尺規作圖' },
-        { id: 'm4-u3', title: '3. 三角形的基本性質' },
-        { id: 'm4-u4', title: '4. 平行與四邊形' }
+      { id: 'm4', title: '第四冊 八下', units: [
+        { id: 'm4-u1', title: '第 1 章 翰林 數列與級數' },
+        { id: 'm4-u2', title: '第 2 章 翰林 線型函數與其圖形' }
       ]},
-      { id: 'm5', title: '第五冊 (九上)', units: [
+      { id: 'm5', title: '第五冊 九上', units: [
         { id: 'm5-u1', title: '1. 相似形' },
         { id: 'm5-u2', title: '2. 圓' },
         { id: 'm5-u3', title: '3. 外心、內心與重心' }
       ]},
-      { id: 'm6', title: '第六冊 (九下)', units: [
+      { id: 'm6', title: '第六冊 九下', units: [
         { id: 'm6-u1', title: '1. 二次函數' },
         { id: 'm6-u2', title: '2. 立體圖形' },
         { id: 'm6-u3', title: '3. 統計與機率' }
@@ -178,7 +176,7 @@ export const curriculum: Subject[] = [
     books: [
       {
         id: 's1',
-        title: '第一冊 (七上 生物)',
+        title: '第一冊 七上',
         units: [
           { id: 's1-u0', title: '緒論' },
           { id: 's1-u1', title: '第1章 生命的特性' },
@@ -191,7 +189,7 @@ export const curriculum: Subject[] = [
       },
       {
         id: 's2',
-        title: '第二冊 (七下 生物)',
+        title: '第二冊 七下',
         units: [
           { id: 's2-u1', title: '第1章 生殖' },
           { id: 's2-u2', title: '第2章 遺傳' },
@@ -201,7 +199,7 @@ export const curriculum: Subject[] = [
           { id: 's2-u6', title: '跨科主題 人、植物與環境的共存關係' }
         ]
       },
-      { id: 's3', title: '第三冊 (八上 理化)', units: [
+      { id: 's3', title: '第三冊 八上', units: [
         { id: 's3-u1', title: '第1章：基本測量' },
         { id: 's3-u2', title: '第2章：物質的世界' },
         { id: 's3-u3', title: '第3章：波動與聲音' },
@@ -211,7 +209,7 @@ export const curriculum: Subject[] = [
         { id: 's3-u7', title: '跨科主題 太陽-地球的生命之光' },
         { id: 's3-u8', title: '聯合國17項永續發展目標' }
       ]},
-      { id: 's4', title: '第四冊 (八下 理化)', units: [
+      { id: 's4', title: '第四冊 八下', units: [
         { id: 's4-u1', title: '1. 化學反應' },
         { id: 's4-u2', title: '2. 氧化與還原' },
         { id: 's4-u3', title: '3. 酸鹼鹽' },
@@ -219,7 +217,7 @@ export const curriculum: Subject[] = [
         { id: 's4-u5', title: '5. 有機化合物' },
         { id: 's4-u6', title: '6. 力與壓力' }
       ]},
-      { id: 's5', title: '第五冊 (九上 理化+地科)', units: [
+      { id: 's5', title: '第五冊 九上', units: [
         { id: 's5-u1', title: '理化 1. 直線運動' },
         { id: 's5-u2', title: '理化 2. 力與運動' },
         { id: 's5-u3', title: '理化 3. 功與能' },
@@ -228,7 +226,7 @@ export const curriculum: Subject[] = [
         { id: 's5-u6', title: '地科 2. 變動的地球' },
         { id: 's5-u7', title: '地科 3. 浩瀚的宇宙' }
       ]},
-      { id: 's6', title: '第六冊 (九下 理化+地科)', units: [
+      { id: 's6', title: '第六冊 九下', units: [
         { id: 's6-u1', title: '理化 1. 電流的熱效應與化學效應' },
         { id: 's6-u2', title: '理化 2. 電與磁' },
         { id: 's6-u3', title: '地科 1. 多變的天氣' },
