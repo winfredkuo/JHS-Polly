@@ -237,93 +237,136 @@ export const curriculum: Subject[] = [
     ]
   },
   {
-    id: 'social',
-    title: '社會 (歷史/地理/公民)',
+    id: 'history',
+    title: '歷史',
     books: [
-      { id: 'so1', title: '第一冊 (七上 台灣)', units: [
-        { id: 'so1-g1', title: '地理 1. 認識位置與地圖' },
-        { id: 'so1-g2', title: '地理 2. 世界中的臺灣' },
-        { id: 'so1-g3', title: '地理 3. 地形' },
-        { id: 'so1-g4', title: '地理 4. 海岸與島嶼' },
-        { id: 'so1-g5', title: '地理 5. 天氣與氣候' },
-        { id: 'so1-g6', title: '地理 6. 水文' },
-        { id: 'so1-h1', title: '歷史 1. 史前臺灣與原住民文化' },
-        { id: 'so1-h2', title: '歷史 2. 大航海時代各方勢力的競逐' },
-        { id: 'so1-h3', title: '歷史 3. 大航海時代臺灣原住民與外來者' },
-        { id: 'so1-h4', title: '歷史 4. 清帝國統治政策的變遷' },
-        { id: 'so1-h5', title: '歷史 5. 清帝國時期農商業的發展' },
-        { id: 'so1-h6', title: '歷史 6. 清帝國時期社會文化的變遷' },
-        { id: 'so1-c1', title: '公民 1. 公民與公民德性' },
-        { id: 'so1-c2', title: '公民 2. 人性尊嚴與人權保障' },
-        { id: 'so1-c3', title: '公民 3. 家庭生活' },
-        { id: 'so1-c4', title: '公民 4. 變遷中的家庭' },
-        { id: 'so1-c5', title: '公民 5. 學生權利與校園生活' },
-        { id: 'so1-c6', title: '公民 6. 部落與公民參與' }
+      { id: 'h1', title: '第一冊 七上', units: [
+        { id: 'so1-h0', title: '導言 歷史的基礎' },
+        { id: 'so1-h1', title: '第1章 史前台灣與原住民文化' },
+        { id: 'so1-h2', title: '第2章 大航海時代' },
+        { id: 'so1-h3', title: '第3章 大航海時代臺灣原住民與外來者' },
+        { id: 'so1-h4', title: '第4章 清帝國統治政策的變遷' },
+        { id: 'so1-h5', title: '第5章 清帝國時期農商業的發展' },
+        { id: 'so1-h6', title: '第6章 清帝國時期社會文化的變遷' }
       ]},
-      { id: 'so2', title: '第二冊 (七下 台灣)', units: [
-        { id: 'so2-g1', title: '地理 1. 人口成長與分布' },
-        { id: 'so2-g2', title: '地理 2. 人口組成與族群文化' },
-        { id: 'so2-g3', title: '地理 3. 第一級產業' },
-        { id: 'so2-g4', title: '地理 4. 第二、三級產業' },
-        { id: 'so2-g5', title: '地理 5. 聚落體系與都市發展' },
-        { id: 'so2-g6', title: '地理 6. 區域發展與差異' },
-        { id: 'so2-h1', title: '歷史 1. 日治時期的政治' },
-        { id: 'so2-h2', title: '歷史 2. 日治時期的經濟' },
-        { id: 'so2-h3', title: '歷史 3. 日治時期的社會與文化' },
-        { id: 'so2-h4', title: '歷史 4. 戰後臺灣的政治' },
-        { id: 'so2-h5', title: '歷史 5. 戰後臺灣的外交' },
-        { id: 'so2-h6', title: '歷史 6. 戰後臺灣的經濟與社會' },
-        { id: 'so2-c1', title: '公民 1. 多元文化' },
-        { id: 'so2-c2', title: '公民 2. 社會規範' },
-        { id: 'so2-c3', title: '公民 3. 團體與志願結社' },
-        { id: 'so2-c4', title: '公民 4. 公共意見' },
-        { id: 'so2-c5', title: '公民 5. 公平正義' },
-        { id: 'so2-c6', title: '公民 6. 社會安全與國家責任' }
+      { id: 'h2', title: '第二冊 七下', units: [
+        { id: 'so2-h1', title: '第1章 日治時期的政治' },
+        { id: 'so2-h2', title: '第2章 日治時期的經濟' }
       ]},
-      { id: 'so3', title: '第三冊 (八上 中國)', units: [
-        { id: 'so3-g1', title: '地理 1. 中國的地形' },
-        { id: 'so3-g2', title: '地理 2. 中國的氣候' },
-        { id: 'so3-g3', title: '地理 3. 中國的人口' },
-        { id: 'so3-g4', title: '地理 4. 中國的經濟發展與全球關連' },
-        { id: 'so3-g5', title: '地理 5. 東北亞的自然環境與文化' },
-        { id: 'so3-g6', title: '地理 6. 東北亞的經濟發展與挑戰' },
-        { id: 'so3-h1', title: '歷史 1. 商周至隋唐時期的國家與社會' },
-        { id: 'so3-h2', title: '歷史 2. 商周至隋唐時期的民族與文化' },
-        { id: 'so3-h3', title: '歷史 3. 宋元多民族並立的時期' },
-        { id: 'so3-h4', title: '歷史 4. 明清時期東亞世界的變動' },
-        { id: 'so3-h5', title: '歷史 5. 西方衝擊下的東亞世界' },
-        { id: 'so3-h6', title: '歷史 6. 清末變局與社會文化的變遷' },
-        { id: 'so3-c1', title: '公民 1. 國家與民主政治' },
-        { id: 'so3-c2', title: '公民 2. 憲法與權利保障' },
-        { id: 'so3-c3', title: '公民 3. 法治與權力分立' },
-        { id: 'so3-c4', title: '公民 4. 中央政府' },
-        { id: 'so3-c5', title: '公民 5. 地方政府' },
-        { id: 'so3-c6', title: '公民 6. 政治參與' }
+      { id: 'h3', title: '第三冊 八上', units: [
+        { id: 'so3-h1', title: '第1章 商周至隋唐：國家與社會的千年變革' },
+        { id: 'so3-h2', title: '第2章 商周至隋唐：民族文化' },
+        { id: 'so3-h3', title: '第3章 宋元多民族並立的時期' },
+        { id: 'so3-h4', title: '第4章 明清時期東亞世界的變動' },
+        { id: 'so3-h5', title: '第5章 西力衝擊下的東亞世界' },
+        { id: 'so3-h6', title: '第6章 晚清社會文化的調適與變遷' }
       ]},
-      { id: 'so4', title: '第四冊 (八下 亞洲)', units: [
-        { id: 'so4-h1', title: '歷史 1. 晚清變局' },
-        { id: 'so4-h2', title: '歷史 2. 中華民國與現代中國' },
-        { id: 'so4-g1', title: '地理 1. 東北亞與東南亞' },
-        { id: 'so4-g2', title: '地理 2. 南亞與西亞' },
-        { id: 'so4-c1', title: '公民 1. 民法與刑法' },
-        { id: 'so4-c2', title: '公民 2. 行政法與權利救濟' }
+      { id: 'h4', title: '第四冊 八下', units: [
+        { id: 'so4-h1', title: '第1章 中華民國的建立' },
+        { id: 'so4-h2', title: '第2章 舊傳統與新思潮' }
       ]},
-      { id: 'so5', title: '第五冊 (九上 世界)', units: [
-        { id: 'so5-h1', title: '歷史 1. 古代文明' },
-        { id: 'so5-h2', title: '歷史 2. 近代歐洲的興起' },
-        { id: 'so5-g1', title: '地理 1. 歐洲與美洲' },
-        { id: 'so5-g2', title: '地理 2. 非洲與大洋洲' },
-        { id: 'so5-c1', title: '公民 1. 經濟學基本概念' },
-        { id: 'so5-c2', title: '公民 2. 市場與貨幣' }
+      { id: 'h5', title: '第五冊 九上', units: [
+        { id: 'so5-h1', title: '第1章 古代文明的誕生' },
+        { id: 'so5-h2', title: '第2章 古希臘羅馬文化' },
+        { id: 'so5-h3', title: '第3章 普世宗教的發展' },
+        { id: 'so5-h4', title: '第4章 近代歐洲的興起' },
+        { id: 'so5-h5', title: '第5章 多元世界的互動' },
+        { id: 'so5-h6', title: '第6章 近代歐洲的變革' }
       ]},
-      { id: 'so6', title: '第六冊 (九下 全球)', units: [
+      { id: 'h6', title: '第六冊 九下', units: [
         { id: 'so6-h1', title: '歷史 1. 兩次世界大戰' },
-        { id: 'so6-h2', title: '歷史 2. 冷戰與現代世界' },
+        { id: 'so6-h2', title: '歷史 2. 冷戰與現代世界' }
+      ]}
+    ]
+  },
+  {
+    id: 'geography',
+    title: '地理',
+    books: [
+      { id: 'g1', title: '第一冊 七上', units: [
+        { id: 'so1-g1', title: '第1章 認識位置與地圖' },
+        { id: 'so1-g2', title: '第2章 世界中的臺灣' },
+        { id: 'so1-g3', title: '第3章 台灣地形' },
+        { id: 'so1-g4', title: '第4章 台灣海岸與島嶼' },
+        { id: 'so1-g5', title: '第5章 台灣天氣與氣候' },
+        { id: 'so1-g6', title: '第6章 台灣水文' }
+      ]},
+      { id: 'g2', title: '第二冊 七下', units: [
+        { id: 'so2-g1', title: '第1章 人口成長與分布' },
+        { id: 'so2-g2', title: '第2章 人口組成與族群文化' }
+      ]},
+      { id: 'g3', title: '第三冊 八上', units: [
+        { id: 'so3-g1', title: '第1章 中國的自然環境' },
+        { id: 'so3-g2', title: '第2章 中國的人口' },
+        { id: 'so3-g3', title: '第3章 中國的產業轉型與區域差異' },
+        { id: 'so3-g4', title: '第4章 全球化下的中國' },
+        { id: 'so3-g5', title: '第5章 東北亞的自然環境與文化' },
+        { id: 'so3-g6', title: '第6章 東北亞的經濟發展與挑戰' }
+      ]},
+      { id: 'g4', title: '第四冊 八下', units: [
+        { id: 'so4-g0', title: '前導 翰林 全球氣候漫談' },
+        { id: 'so4-g1', title: '第1章 翰林 東南亞' },
+        { id: 'so4-g2', title: '第2章 翰林 南亞' },
+        { id: 'so4-g3', title: '第3章 西亞與北非的自然環境與文化' },
+        { id: 'so4-g4', title: '第4章 西亞與北非的衝突與經濟發展' },
+        { id: 'so4-g5', title: '第5章 翰林 漠南非洲自然環境與文化' },
+        { id: 'so4-g6', title: '第6章 翰林 漠南非洲的產業與經濟發展' }
+      ]},
+      { id: 'g5', title: '第五冊 九上', units: [
+        { id: 'so5-g1', title: '第1章 歐洲與俄羅斯的自然環境' },
+        { id: 'so5-g2', title: '第2章 歐洲與俄羅斯的產業與文化' },
+        { id: 'so5-g3', title: '第3章 北美洲' },
+        { id: 'so5-g4', title: '第4章 中南美洲' },
+        { id: 'so5-g5', title: '第5章 大洋洲' },
+        { id: 'so5-g6', title: '第6章 兩極地區與全球氣候變遷' }
+      ]},
+      { id: 'g6', title: '第六冊 九下', units: [
         { id: 'so6-g1', title: '地理 1. 全球氣候與環境議題' },
-        { id: 'so6-g2', title: '地理 2. 國際經貿與區域發展' },
+        { id: 'so6-g2', title: '地理 2. 國際經貿與區域發展' }
+      ]}
+    ]
+  },
+  {
+    id: 'civics',
+    title: '公民',
+    books: [
+      { id: 'v1', title: '第一冊 七上', units: [
+        { id: 'so1-c1', title: '第1章 公民與公民德性' },
+        { id: 'so1-c2', title: '第2章 人性尊嚴與人權保障' },
+        { id: 'so1-c3', title: '第3章 家庭生活' },
+        { id: 'so1-c4', title: '第4章 平權家庭' },
+        { id: 'so1-c5', title: '第5章 學生權利與校園生活' },
+        { id: 'so1-c6', title: '第6章 部落與公民參與' }
+      ]},
+      { id: 'v2', title: '第二冊 七下', units: [
+        { id: 'so2-c1', title: '第1章 多元文化' },
+        { id: 'so2-c2', title: '第2章 社會規範' }
+      ]},
+      { id: 'v3', title: '第三冊 八上', units: [
+        { id: 'so3-c1', title: '第1章 國家與民主治理' },
+        { id: 'so3-c2', title: '第2章 法治社會' },
+        { id: 'so3-c3', title: '第3章 權利保障與權力分立' },
+        { id: 'so3-c4', title: '第4章 中央政府' },
+        { id: 'so3-c5', title: '第5章 地方政府' },
+        { id: 'so3-c6', title: '第6章 政治參與' }
+      ]},
+      { id: 'v4', title: '第四冊 八下', units: [
+        { id: 'so4-c1', title: '第1章 生活中的契約' },
+        { id: 'so4-c2', title: '第2章 民事糾紛的解決' }
+      ]},
+      { id: 'v5', title: '第五冊 九上', units: [
+        { id: 'so5-c1', title: '第1章 生活中的選擇' },
+        { id: 'so5-c2', title: '第2章 價格與資源分配' },
+        { id: 'so5-c3', title: '第3章 日常生活的交易' },
+        { id: 'so5-c4', title: '第4章 市場競爭' },
+        { id: 'so5-c5', title: '第5章 貨幣的使用' },
+        { id: 'so5-c6', title: '第6章 社會中的勞動參與' }
+      ]},
+      { id: 'v6', title: '第六冊 九下', units: [
         { id: 'so6-c1', title: '公民 1. 全球化與國際社會' },
         { id: 'so6-c2', title: '公民 2. 科技與媒體' }
       ]}
     ]
   }
+
 ];
