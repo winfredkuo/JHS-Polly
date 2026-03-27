@@ -50,9 +50,23 @@
         "count": { "type": "integer", "description": "Number of AI calls today" }
       },
       "required": ["count"]
+    },
+    "UnitMetadata": {
+      "title": "Unit Metadata",
+      "description": "Metadata for a subject unit, like PDF notes",
+      "type": "object",
+      "properties": {
+        "pdfUrl": { "type": "string", "description": "URL to the PDF note in Storage" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update time" }
+      },
+      "required": ["pdfUrl", "updatedAt"]
     }
   },
   "firestore": {
+    "/unit_metadata/{unitId}": {
+      "schema": "UnitMetadata",
+      "description": "Global metadata for subject units, like PDF links"
+    },
     "/users/{userId}/subjectProgress/{unitId}": {
       "schema": "SubjectProgress",
       "description": "Stores review history for each subject unit per user"

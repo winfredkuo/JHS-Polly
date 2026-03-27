@@ -60,9 +60,24 @@ service cloud.firestore {
              data.count <= 31; // Allow up to 31 to handle the "limit reached" state if needed
     }
 
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.email == "theoder@gmail.com";
+    }
+
+    function isValidUnitMetadata(data) {
+      return data.keys().hasOnly(['pdfUrl', 'updatedAt']) &&
+             data.pdfUrl is string &&
+             data.updatedAt is string;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
+
+    match /unit_metadata/{unitId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidUnitMetadata(request.resource.data);
+    }
 
     match /vocab_cache/{word} {
       allow read: if true;

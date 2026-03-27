@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { curriculum, Subject, Book, Unit } from '../data/curriculum';
 import { format } from 'date-fns';
-import { CheckCircle2, Plus, Calendar, MessageSquare, ChevronDown, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Plus, Calendar, MessageSquare, ChevronDown, ChevronRight, FileText, Upload, Loader2 } from 'lucide-react';
+import { auth, db, storage } from '../firebase';
+import { collection, doc, getDocs, setDoc, onSnapshot } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface ReviewRecord {
   id: string;
@@ -11,6 +14,11 @@ export interface ReviewRecord {
 
 export interface UserData {
   [unitId: string]: ReviewRecord[];
+}
+
+interface UnitMetadata {
+  pdfUrl: string;
+  updatedAt: string;
 }
 
 interface SubjectViewProps {
@@ -26,6 +34,77 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [reviewDate, setReviewDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [reviewNote, setReviewNote] = useState('');
+  
+  // Unit Metadata (PDF URLs)
+  const [unitMetadata, setUnitMetadata] = useState<Record<string, UnitMetadata>>({});
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+
+  const isAdmin = auth.currentUser?.email === 'theoder@gmail.com';
+
+  useEffect(() => {
+    // Listen for unit metadata changes
+    const unsubscribe = onSnapshot(collection(db, 'unit_metadata'), (snapshot) => {
+      const metadata: Record<string, UnitMetadata> = {};
+      snapshot.forEach((doc) => {
+        metadata[doc.id] = doc.data() as UnitMetadata;
+      });
+      setUnitMetadata(metadata);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleFileUpload = async (unitId: string, file: File) => {
+    if (!isAdmin) {
+      alert('您沒有管理員權限，無法上傳。');
+      return;
+    }
+    
+    // Check file size (limit to 10MB for safety)
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`檔案過大 (${(file.size / 1024 / 1024).toFixed(1)}MB)，請先壓縮至 10MB 以下再上傳。`);
+      return;
+    }
+
+    setIsUploading(unitId);
+    console.log(`Starting upload for ${unitId}...`);
+    
+    try {
+      // 1. Upload to Storage (overwrites if same path)
+      const storageRef = ref(storage, `unit_notes/${unitId}.pdf`);
+      console.log('Storage reference created:', storageRef.fullPath);
+      
+      const uploadResult = await uploadBytes(storageRef, file);
+      console.log('Upload bytes completed:', uploadResult.metadata.fullPath);
+      
+      // 2. Get Download URL
+      const downloadUrl = await getDownloadURL(storageRef);
+      console.log('Download URL obtained:', downloadUrl);
+      
+      // 3. Update Firestore
+      await setDoc(doc(db, 'unit_metadata', unitId), {
+        pdfUrl: downloadUrl,
+        updatedAt: new Date().toISOString()
+      });
+      
+      alert('筆記上傳成功！');
+    } catch (error: any) {
+      console.error('Upload failed with error:', error);
+      let errorMsg = '上傳失敗。';
+      
+      if (error.code === 'storage/unauthorized') {
+        errorMsg = '上傳失敗：權限不足。請檢查 Firebase Storage 規則。';
+      } else if (error.code === 'storage/canceled') {
+        errorMsg = '上傳已取消。';
+      } else if (error.message) {
+        errorMsg = `上傳失敗：${error.message}`;
+      }
+      
+      alert(errorMsg);
+    } finally {
+      setIsUploading(null);
+    }
+  };
 
   const subject = curriculum.find(s => s.id === activeSubject)!;
 
@@ -96,6 +175,7 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                     {book.units.map(unit => {
                       const records = userData[unit.id] || [];
                       const hasReviewed = records.length > 0;
+                      const metadata = unitMetadata[unit.id];
 
                       return (
                         <div key={unit.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50">
@@ -121,16 +201,63 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                                   </div>
                                 )}
                               </div>
+                              
+                              {/* PDF Note Link */}
+                              {metadata && (
+                                <div className="mt-2">
+                                  <a 
+                                    href={metadata.pdfUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+                                  >
+                                    <FileText className="w-3.5 h-3.5" />
+                                    📖 查看重點筆記
+                                  </a>
+                                </div>
+                              )}
                             </div>
                           </div>
                           
-                          <button
-                            onClick={() => setSelectedUnit(unit)}
-                            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                            新增複習紀錄
-                          </button>
+                          <div className="flex items-center gap-2">
+                            {/* Admin Upload Button */}
+                            {isAdmin && (
+                              <div className="relative">
+                                <input 
+                                  type="file" 
+                                  accept=".pdf"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleFileUpload(unit.id, file);
+                                  }}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                  disabled={isUploading === unit.id}
+                                />
+                                <button
+                                  className={`flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                    isUploading === unit.id 
+                                      ? 'bg-slate-100 text-slate-400' 
+                                      : 'text-slate-600 bg-slate-100 hover:bg-slate-200'
+                                  }`}
+                                >
+                                  {isUploading === unit.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Upload className="w-4 h-4" />
+                                  )}
+                                  {isUploading === unit.id ? '上傳中...' : '上傳筆記'}
+                                </button>
+                              </div>
+                            )}
+
+                            <button
+                              onClick={() => setSelectedUnit(unit)}
+                              className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                              新增複習紀錄
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
