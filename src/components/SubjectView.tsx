@@ -17,7 +17,8 @@ export interface UserData {
 }
 
 interface UnitMetadata {
-  pdfUrl: string;
+  aiNoteUrl?: string;
+  manualNoteUrl?: string;
   updatedAt: string;
 }
 
@@ -54,24 +55,25 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
     return () => unsubscribe();
   }, []);
 
-  const handleFileUpload = async (unitId: string, file: File) => {
+  const handleFileUpload = async (unitId: string, file: File, noteType: 'ai' | 'manual') => {
     if (!isAdmin) {
       alert('您沒有管理員權限，無法上傳。');
       return;
     }
     
-    // Check file size (limit to 10MB for safety)
-    if (file.size > 10 * 1024 * 1024) {
-      alert(`檔案過大 (${(file.size / 1024 / 1024).toFixed(1)}MB)，請先壓縮至 10MB 以下再上傳。`);
+    // Check file size (limit to 20MB for safety)
+    if (file.size > 20 * 1024 * 1024) {
+      alert(`檔案過大 (${(file.size / 1024 / 1024).toFixed(1)}MB)，請先壓縮至 20MB 以下再上傳。`);
       return;
     }
 
-    setIsUploading(unitId);
-    console.log(`Starting upload for ${unitId}...`);
+    const uploadId = `${unitId}-${noteType}`;
+    setIsUploading(uploadId);
+    console.log(`Starting upload for ${unitId} (${noteType})...`);
     
     try {
       // 1. Upload to Storage (overwrites if same path)
-      const storageRef = ref(storage, `unit_notes/${unitId}.pdf`);
+      const storageRef = ref(storage, `unit_notes/${unitId}_${noteType}.pdf`);
       console.log('Storage reference created:', storageRef.fullPath);
       
       const uploadResult = await uploadBytes(storageRef, file);
@@ -82,12 +84,13 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
       console.log('Download URL obtained:', downloadUrl);
       
       // 3. Update Firestore
+      const fieldToUpdate = noteType === 'ai' ? 'aiNoteUrl' : 'manualNoteUrl';
       await setDoc(doc(db, 'unit_metadata', unitId), {
-        pdfUrl: downloadUrl,
+        [fieldToUpdate]: downloadUrl,
         updatedAt: new Date().toISOString()
-      });
+      }, { merge: true });
       
-      alert('筆記上傳成功！');
+      alert(`${noteType === 'ai' ? 'AI 智能導讀' : '手寫精華筆記'} 上傳成功！`);
     } catch (error: any) {
       console.error('Upload failed with error:', error);
       let errorMsg = '上傳失敗。';
@@ -202,51 +205,97 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                                 )}
                               </div>
                               
-                              {/* PDF Note Link */}
+                              {/* PDF Note Links */}
                               {metadata && (
-                                <div className="mt-2">
-                                  <a 
-                                    href={metadata.pdfUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
-                                  >
-                                    <FileText className="w-3.5 h-3.5" />
-                                    📖 查看重點筆記
-                                  </a>
+                                <div className="mt-2 flex flex-wrap gap-3">
+                                  {metadata.aiNoteUrl && (
+                                    <a 
+                                      href={metadata.aiNoteUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors bg-indigo-50/50 px-2 py-1 rounded-md"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      🤖 AI 智能導讀
+                                    </a>
+                                  )}
+                                  {metadata.manualNoteUrl && (
+                                    <a 
+                                      href={metadata.manualNoteUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors bg-emerald-50/50 px-2 py-1 rounded-md"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      ✍️ 手寫精華筆記
+                                    </a>
+                                  )}
                                 </div>
                               )}
                             </div>
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            {/* Admin Upload Button */}
+                            {/* Admin Upload Buttons */}
                             {isAdmin && (
-                              <div className="relative">
-                                <input 
-                                  type="file" 
-                                  accept=".pdf"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) handleFileUpload(unit.id, file);
-                                  }}
-                                  className="absolute inset-0 opacity-0 cursor-pointer"
-                                  disabled={isUploading === unit.id}
-                                />
-                                <button
-                                  className={`flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                                    isUploading === unit.id 
-                                      ? 'bg-slate-100 text-slate-400' 
-                                      : 'text-slate-600 bg-slate-100 hover:bg-slate-200'
-                                  }`}
-                                >
-                                  {isUploading === unit.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Upload className="w-4 h-4" />
-                                  )}
-                                  {isUploading === unit.id ? '上傳中...' : '上傳筆記'}
-                                </button>
+                              <div className="flex items-center gap-2">
+                                {/* AI Note Upload */}
+                                <div className="relative">
+                                  <input 
+                                    type="file" 
+                                    accept=".pdf"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleFileUpload(unit.id, file, 'ai');
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    disabled={!!isUploading}
+                                  />
+                                  <button
+                                    title="上傳 AI 智能導讀"
+                                    className={`flex items-center gap-1 px-2 py-1.5 text-[10px] font-medium rounded-lg transition-colors ${
+                                      isUploading === `${unit.id}-ai`
+                                        ? 'bg-indigo-100 text-indigo-400' 
+                                        : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
+                                    }`}
+                                  >
+                                    {isUploading === `${unit.id}-ai` ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                      <Upload className="w-3.5 h-3.5" />
+                                    )}
+                                    AI 導讀
+                                  </button>
+                                </div>
+
+                                {/* Manual Note Upload */}
+                                <div className="relative">
+                                  <input 
+                                    type="file" 
+                                    accept=".pdf"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleFileUpload(unit.id, file, 'manual');
+                                    }}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    disabled={!!isUploading}
+                                  />
+                                  <button
+                                    title="上傳 手寫精華筆記"
+                                    className={`flex items-center gap-1 px-2 py-1.5 text-[10px] font-medium rounded-lg transition-colors ${
+                                      isUploading === `${unit.id}-manual`
+                                        ? 'bg-emerald-100 text-emerald-400' 
+                                        : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
+                                    }`}
+                                  >
+                                    {isUploading === `${unit.id}-manual` ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                      <Upload className="w-3.5 h-3.5" />
+                                    )}
+                                    手寫筆記
+                                  </button>
+                                </div>
                               </div>
                             )}
 
