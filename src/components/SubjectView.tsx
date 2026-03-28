@@ -17,7 +17,7 @@ export interface UserData {
 }
 
 interface UnitMetadata {
-  aiNoteUrl?: string;
+  pdfUrl?: string;
   manualNoteUrl?: string;
   updatedAt: string;
 }
@@ -84,7 +84,7 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
       console.log('Download URL obtained:', downloadUrl);
       
       // 3. Update Firestore
-      const fieldToUpdate = noteType === 'ai' ? 'aiNoteUrl' : 'manualNoteUrl';
+      const fieldToUpdate = noteType === 'ai' ? 'pdfUrl' : 'manualNoteUrl';
       await setDoc(doc(db, 'unit_metadata', unitId), {
         [fieldToUpdate]: downloadUrl,
         updatedAt: new Date().toISOString()
@@ -208,9 +208,9 @@ export function SubjectView({ userData, onAddReview }: SubjectViewProps) {
                               {/* PDF Note Links */}
                               {metadata && (
                                 <div className="mt-2 flex flex-wrap gap-3">
-                                  {metadata.aiNoteUrl && (
+                                  {metadata.pdfUrl && (
                                     <a 
-                                      href={metadata.aiNoteUrl} 
+                                      href={metadata.pdfUrl} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
                                       className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors bg-indigo-50/50 px-2 py-1 rounded-md"

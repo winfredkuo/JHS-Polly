@@ -56,7 +56,7 @@
       "description": "Metadata for a subject unit, like PDF notes",
       "type": "object",
       "properties": {
-        "aiNoteUrl": { "type": "string", "description": "URL to the AI generated note in Storage" },
+        "pdfUrl": { "type": "string", "description": "URL to the AI generated note in Storage" },
         "manualNoteUrl": { "type": "string", "description": "URL to the manual handwritten note in Storage" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Last update time" }
       },
